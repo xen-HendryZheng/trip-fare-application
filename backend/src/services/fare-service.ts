@@ -44,7 +44,6 @@ export class FareService {
         for (const trip of Trips) {
             const { fare, fare_item } = await this.calculateFare(trip.from, trip.to, trip.datetime);
             // group by fare_id and calculate total fare and store min and max datetime
-            
             tripGroupByFareId[fare_item.id] = {
                 total_fare: (tripGroupByFareId[fare_item.id] ? tripGroupByFareId[fare_item.id].total_fare : 0) + Number(fare),
                 min_datetime: tripGroupByFareId[fare_item.id] ? (tripGroupByFareId[fare_item.id].min_datetime > trip.datetime ? trip.datetime : tripGroupByFareId[fare_item.id].min_datetime) : trip.datetime,
@@ -53,9 +52,14 @@ export class FareService {
         }
         // loop through tripGroupByFareId and calculate fare cap
         for (const key in tripGroupByFareId) {
-            const fareCap = await this.fareCapRepository.findOneBy({ fare_id: Number(key) });
+            let days = moment(tripGroupByFareId[key].max_datetime).diff(moment(tripGroupByFareId[key].min_datetime), 'days');
+            days = days < 1 ? 1 : days
+            const fareCap = await this.fareCapRepository.createQueryBuilder('fare_cap')
+                .where('fare_cap.fare_id = :fareId', { fareId: Number(key) })
+                .andWhere('fare_cap.active = :active', { active: true })
+                .andWhere('fare_cap.cap_days <= :capDays', { capDays: days  })
+                .getOne();
             if (fareCap) {
-                const days = moment(tripGroupByFareId[key].max_datetime).diff(moment(tripGroupByFareId[key].min_datetime), 'days');
                 if (days >= fareCap.cap_days) {
                     totalFare += Number(fareCap.cap_fare);
                 } else {
