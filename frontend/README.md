@@ -1,27 +1,44 @@
-# Paystone
+# Getting Started with Create Angular App
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.2.
+This project was bootstrapped with [Create Angular App](https://angular.io/).
+## Environment Variables
 
-## Development server
+- Create a .env file in the root directory and add environment-specific variables on new lines in the form of NAME=VALUE. For example:
+- The .env file should be gitignored. A .env.example file is provided for reference.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Backend API Services
 
-## Code scaffolding
+- Make sure you have your backend API ready on your local by referring to this [Backend Services](https://github.com/xen-HendryZheng/trip-fare-application/tree/master/backend)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Available Scripts
 
-## Build
+In the project directory, you can run:
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### `ng serve`
 
-## Running unit tests
+Runs the app in the development mode.\
+Open [http://localhost:4200](http://localhost:4200) to view it in the browser.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-## Running end-to-end tests
+### `npm run build`
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Builds the app for production to the `build` folder.\
+It correctly bundles Angular in production mode and optimizes the build for the best performance.
 
-## Further help
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Built With
+
+- [Angular](https://angular.io/) - Front-end framework
+- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript
+
+## Authors
+
+- [HendryZheng](https://github.com/xen-HendryZheng)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.

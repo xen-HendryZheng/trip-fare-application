@@ -10,6 +10,15 @@ export class CustomersComponent implements OnInit {
 
   constructor(private httpService: HttpService) { }
 
+  sorter: any = {
+    "monday": 1,
+    "tuesday": 2,
+    "wednesday": 3,
+    "thursday": 4,
+    "friday": 5,
+    "saturday": 6,
+    "sunday": 7
+  };
   fares: any = [];
   fareCap: any = [];
   ruleConfig: any = [];
@@ -64,15 +73,15 @@ export class CustomersComponent implements OnInit {
 
   async getRuleConfig() {
     this.httpService.getRequest('/fare-rule/config', {}).subscribe((res: any) => {
-      
+
       this.ruleConfig = res;
       // group rule config by day
-      this.ruleConfig = this.ruleConfig.reduce((r: any, a: any) => {
+      const ordered = this.ruleConfig.reduce((r: any, a: any) => {
         r[a.day] = [...r[a.day] || [], a];
         return r;
       }, {});
-      // sort by monday, tuesday, wednesday, thursday, friday, saturday, sunday
-      
+      this.ruleConfig = ordered;
+
     });
   }
 
@@ -87,12 +96,12 @@ export class CustomersComponent implements OnInit {
   formatTime(time: number) {
     //time format would be 800 => 08:00
     let timeStr = time.toString();
-    let sliced = timeStr.slice(0, -2);   
+    let sliced = timeStr.slice(0, -2);
     let minutes = timeStr.substring(2, 4);
     let hours = sliced.length == 1 ? "0" + sliced : sliced;
     minutes = minutes.length == 1 ? "0" + minutes : minutes;
-    
-    
+
+
     return hours + ":" + minutes;
   }
 
