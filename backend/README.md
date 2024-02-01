@@ -41,6 +41,7 @@ The backend is composed of two services: `postgres` and `web`.
 
 #### Postgres Service
 
+```
 - Image: postgres:10.7
 - Environment variables:
   - POSTGRES_USER: testuser
@@ -51,9 +52,10 @@ The backend is composed of two services: `postgres` and `web`.
   - Container: 5432
 - Volumes:
   - ./postgres-data:/var/lib/postgresql/data
+```
 
 #### Web Service
-
+```
 - Build context: .
 - Dockerfile: dev.Dockerfile
 - Links: postgres
@@ -66,7 +68,7 @@ The backend is composed of two services: `postgres` and `web`.
   - PGHOST_MIGRATION: postgres
 - Volumes:
   - ./:/app
-  
+```
 
 ### Environment Variables
 
