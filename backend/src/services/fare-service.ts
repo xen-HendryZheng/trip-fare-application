@@ -67,7 +67,6 @@ export class FareService {
             tripGroupByFareIdAndDate[fareId][fareDate] += Number(fare);
             tripGroupByFareIdAndDate[fareId][fareDate] = tripGroupByFareIdAndDate[fareId][fareDate] >= maxDaily.cap_fare ? Number(maxDaily.cap_fare) : tripGroupByFareIdAndDate[fareId][fareDate];
         }
-        console.log(tripGroupByFareIdAndDate);
 
         // loop through tripGroupByFareIdAndDate and check and cap at config which is > daily
         for (const key in tripGroupByFareIdAndDate) {
