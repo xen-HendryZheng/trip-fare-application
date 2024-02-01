@@ -21,6 +21,23 @@ npm install
 ## Database Table
 ![Database Schme](./docs/trip-fare-erd.png)
 
+### Table [Fare]
+```
+This is where the line from and to with the fare of peak / normal is stored
+```
+
+### Table [Fare Cap]
+```
+This is to get the configuration of fare cap which is dynamically store based on metadata, cap_days : To act as benchmark cap max days of the trip, cap_fare: The fare cap total that we should take if the condition matches.
+
+Should there be changes or amendment to monthly or to specific total of days, this table will be able to accomodate the changes without need of changing the code level
+```
+
+### Table [Rule Config]
+```
+This is where the config of Mon - Friday with those peak hours time is stored. Should there be changes or amendment of additional config of special days, e.g public holiday, this table is to accomodate the change without having to change on the code level.
+```
+
 ## Project Structure 
 - src/ # Main source parent folder
 - docs/ # Source for OpenAPI Specs Yaml and other relevant document
