@@ -40,36 +40,45 @@ export class FareService {
 
     async calculateMultipleFares(Trips: Trip[]): Promise<number> {
         let totalFare = 0;
-        let tripGroupByFareId: any = {};
+        let tripGroupByFareIdAndDate: any = {};
+        const fareCaps = await this.fareCapRepository.createQueryBuilder('fare_cap')
+            .where('fare_cap.active = :active', { active: true })
+            .getMany();
+        const fareCapsGroupByFareId: any = {};
+        for (const fareCap of fareCaps) {
+            if (!fareCapsGroupByFareId[fareCap.fare_id]) {
+                fareCapsGroupByFareId[fareCap.fare_id] = [];
+            }
+            fareCapsGroupByFareId[fareCap.fare_id].push(fareCap);
+        }
         for (const trip of Trips) {
             const { fare, fare_item } = await this.calculateFare(trip.from, trip.to, trip.datetime);
-            // group by fare_id and calculate total fare and store min and max datetime
-            tripGroupByFareId[fare_item.id] = {
-                total_fare: (tripGroupByFareId[fare_item.id] ? tripGroupByFareId[fare_item.id].total_fare : 0) + Number(fare),
-                min_datetime: tripGroupByFareId[fare_item.id] ? (tripGroupByFareId[fare_item.id].min_datetime > trip.datetime ? trip.datetime : tripGroupByFareId[fare_item.id].min_datetime) : trip.datetime,
-                max_datetime: tripGroupByFareId[fare_item.id] ? (tripGroupByFareId[fare_item.id].max_datetime < trip.datetime ? trip.datetime : tripGroupByFareId[fare_item.id].max_datetime) : trip.datetime,
-            };
-        }
-        // loop through tripGroupByFareId and calculate fare cap
-        for (const key in tripGroupByFareId) {
-            let days = moment(tripGroupByFareId[key].max_datetime).diff(moment(tripGroupByFareId[key].min_datetime), 'days');
-            days = days < 1 ? 1 : days
-            const fareCap = await this.fareCapRepository.createQueryBuilder('fare_cap')
-                .where('fare_cap.fare_id = :fareId', { fareId: Number(key) })
-                .andWhere('fare_cap.active = :active', { active: true })
-                .andWhere('fare_cap.cap_days <= :capDays', { capDays: days  })
-                .getOne();
-            if (fareCap) {
-                if (days >= fareCap.cap_days) {
-                    totalFare += Number(fareCap.cap_fare);
-                } else {
-                    totalFare += Number(tripGroupByFareId[key].total_fare);
-                }
-            } else {
-                totalFare += Number(tripGroupByFareId[key].total_fare);
+            // group by fare_id and date
+            const fareId = fare_item.id;
+            const fareDate = moment(trip.datetime).format('YYYY-MM-DD');
+            if (!tripGroupByFareIdAndDate[fareId]) {
+                tripGroupByFareIdAndDate[fareId] = {};
             }
+            if (!tripGroupByFareIdAndDate[fareId][fareDate]) {
+                tripGroupByFareIdAndDate[fareId][fareDate] = 0;
+            }
+            // Check and Cap at Daily
+            const maxDaily = fareCapsGroupByFareId[fareId].find((fareCap: any) => fareCap.cap_days === 1);
+            tripGroupByFareIdAndDate[fareId][fareDate] += Number(fare);
+            tripGroupByFareIdAndDate[fareId][fareDate] = tripGroupByFareIdAndDate[fareId][fareDate] >= maxDaily.cap_fare ? Number(maxDaily.cap_fare) : tripGroupByFareIdAndDate[fareId][fareDate];
         }
 
+        // loop through tripGroupByFareIdAndDate and check and cap at config which is > daily
+        for (const key in tripGroupByFareIdAndDate) {
+            const totalDays = Object.keys(tripGroupByFareIdAndDate[key]).length;
+            const maxCap = fareCapsGroupByFareId[key].find((fareCap: any) => fareCap.cap_days > 1 && fareCap.cap_days >= totalDays);
+            for (const keyDate in tripGroupByFareIdAndDate[key]) {
+                totalFare += tripGroupByFareIdAndDate[key][keyDate];
+                if (maxCap) {
+                    totalFare = totalFare >= maxCap.cap_fare ? maxCap.cap_fare : totalFare;
+                }
+            }
+        }
         return totalFare;
     }
 
@@ -87,7 +96,7 @@ export class FareService {
     }
 
     async getFareCaps(): Promise<FareCap[]> {
-        return this.fareCapRepository.find({ relations: ['fare_item']});
+        return this.fareCapRepository.find({ relations: ['fare_item'] });
     }
 
     async createFareList(line_from: string, line_to: string, fare_peak: number, fare_normal: number, active: boolean): Promise<Fare> {

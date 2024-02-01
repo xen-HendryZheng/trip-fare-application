@@ -38,6 +38,13 @@ Should there be changes or amendment to monthly or to specific total of days, th
 This is where the config of Mon - Friday with those peak hours time is stored. Should there be changes or amendment of additional config of special days, e.g public holiday, this table is to accomodate the change without having to change on the code level.
 ```
 
+### Assumption
+```
+Weekly is assummed to be calculated within 7 days backwards instead of Mon - Fri / Mon - Sun
+Daily is assumed to be within a day of date.
+7 >= input <= 1
+```
+
 ## Project Structure 
 - src/ # Main source parent folder
 - docs/ # Source for OpenAPI Specs Yaml and other relevant document

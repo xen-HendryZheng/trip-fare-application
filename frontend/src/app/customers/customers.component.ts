@@ -49,11 +49,14 @@ export class CustomersComponent implements OnInit {
     let tripArr: any = [];
     trips.forEach((element: any) => {
       let trip = element.trim().split(',');
-      tripArr.push({
-        from: trip[0],
-        to: trip[1],
-        datetime: trip[2]
-      });
+      if (trip.length === 3) {
+        tripArr.push({
+          from: trip[0],
+          to: trip[1],
+          datetime: trip[2]
+        });
+      }
+      
     });
     // send request to backend
     this.httpService.postRequest('/fare/calculate-multiple', tripArr).subscribe((res: any) => {
