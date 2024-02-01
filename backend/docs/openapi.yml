@@ -1,0 +1,234 @@
+openapi: 3.0.0
+info:
+  title: peakflo
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /healthcheck/liveness:
+    get:
+      tags:
+        - default
+      summary: Liveness check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'OK'
+  /fare-rule/list:
+    get:
+      tags:
+        - default
+      summary: Get Fare
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareResponse'
+  /fare-rule/config:
+    get:
+      tags:
+        - default
+      summary: Get Fare Config
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareConfigResponse'
+    post:
+      tags:
+        - default
+      summary: INSERT RULE CONFIG
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FareConfigRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareConfigResponse'
+  /fare-rule:
+    post:
+      tags:
+        - default
+      summary: INSERT FARE LIST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FareRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareResponse'
+  /fare-rule/cap:
+    get:
+      tags:
+        - default
+      summary: INSERT FARE CAP
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      tags:
+        - default
+      summary: INSERT FARE CAP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FareCapRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareCapResponse'
+  /fare/calculate:
+    post:
+      tags:
+        - default
+      summary: CALCULATE FARE
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculateFareRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /fare/calculate-multiple:
+    post:
+      tags:
+        - default
+      summary: CALCULATE FARE MULTIPLE
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CalculateFareRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+
+components:
+  schemas:
+    FareRequest:
+      type: object
+      properties:
+        line_from:
+          type: string
+        line_to:
+          type: string
+        fare_peak:
+          type: integer
+        fare_normal:
+          type: integer
+        active:
+          type: boolean
+      required:
+        - line_from
+        - line_to
+        - fare_peak
+        - fare_normal
+        - active
+    FareResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/FareItem'
+    FareItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        line_from:
+          type: string
+        line_to:
+          type: string
+        fare_peak:
+          type: string
+        fare_normal:
+          type: string
+        active:
+          type: boolean
+    FareConfigRequest:
+      type: object
+      properties:
+        rule_name:
+          type: string
+        day:
+          type: string
+        time_from:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'  # Regex pattern for hh:mm format
+        time_to:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'  # Regex pattern for hh:mm format
+      required:
+        - rule_name
+        - day
+        - time_from
+        - time_to
+    FareConfigResponse:
+      $ref: '#/components/schemas/FareItem'
+    FareCapRequest:
+      type: object
+      properties:
+        fare_id:
+          type: integer
+        cap_metadata:
+          type: string
+        cap_days:
+          type: integer
+        cap_fare:
+          type: integer
+      required:
+        - fare_id
+        - cap_metadata
+        - cap_days
+        - cap_fare
+    FareCapResponse:
+      $ref: '#/components/schemas/FareItem'
+    CalculateFareRequest:
+      type: object
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+      required:
+        - from
+        - to
+        - datetime

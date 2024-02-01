@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  postgres:
+    image: 'postgres:10.7'
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpass
+      - POSTGRES_DB=peakflo-system
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+  web:
+    env_file:
+    - .env
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    links:
+      - postgres
+    container_name: peakflo-test-mvp
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - PGHOST=postgres
+      - PGHOST_MIGRATION=postgres
+    volumes:
+      - ./:/app

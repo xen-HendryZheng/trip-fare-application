@@ -1,0 +1,102 @@
+<div class="grid grid-rows-1 grid-flow-col gap-3">
+  <div class="shadow-sm">
+    <h2 class="text-2xl font-bold">Calculate Fare</h2>
+
+    <div class="pt-5 grid grid-cols-1 gap-6">
+          
+      <label class="block">
+        <span class="text-gray-700">Enter your trips (Please follow the format) </span>
+        <textarea
+          name="tripInput"
+          [(ngModel)]="tripInputStr"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          rows="8"
+          placeholder="green,green,2024-01-31T07:58:30Z
+green,red,2024-01-31T09:58:30Z
+green,green,2024-01-31T11:58:30Z"
+        >green,green,2024-01-31T07:58:30Z
+green,red,2024-01-31T09:58:30Z
+green,green,2024-01-31T11:58:30Z</textarea>
+      </label>
+      <div class="block">
+        <div class="mt-2">
+          <div>
+            <button (click)="calculateTotalFare()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              Calculate
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="showResult" class="block">
+        <div class="mt-2">
+          <div class="text-2xl font-bold">
+              Total Fare : ${{totalFare}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="shadow-sm">
+    <h2 class="text-2xl font-bold">Fare Table</h2>
+    <table class="border-collapse border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">From Line</th>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">To Line</th>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">Peak</th>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">Non-Peak</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of fares">
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{item.line_from | titlecase}}</td>
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{item.line_to | titlecase}}</td>
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">${{item.fare_peak}}</td>
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">${{item.fare_normal}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="shadow-sm">
+    <h2 class="text-2xl font-bold">Fare Config</h2>
+    <table class="border-collapse border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">Day</th>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">From - To</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of ruleConfig | keyvalue">
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{item.key}}</td>
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">
+            <div [innerHTML]="formatArray(item.value)"></div>
+          </td>
+          <!-- <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{formatTime(item.time_to)}}</td> -->
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="shadow-sm">
+    <h2 class="text-2xl font-bold">Fare Cap</h2>
+    <table class="border-collapse border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">From - To</th>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">Cap Metadata</th>
+          <th class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">Cap Fare</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of fareCap">
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{item.fare_item.line_from | titlecase}} - {{item.fare_item.line_to | titlecase}}</td>
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{item.cap_metadata | titlecase}}</td>
+          <td class="border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">${{item.cap_fare}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</div>
